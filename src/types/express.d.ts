@@ -5,10 +5,10 @@ declare global {
         interface Request {
             user?: {
                 userId: string;
-                tenantId: string;
+                businessId: string;
                 role: string;
             };
-            tenantId?: string;
+            businessId?: string;
         }
     }
 }

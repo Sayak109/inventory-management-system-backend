@@ -2,15 +2,24 @@ import express, { Application } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { connectDatabase } from './config/database.config';
-
+import { errorHandler } from './middlewares/error.middleware';
 dotenv.config();
+import cookieParser from 'cookie-parser';
+import authRoutes from './modules/auth/auth.routes';
+
 const PORT = process.env.PORT || 5001
 const app: Application = express();
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 
+
+app.use(`${process.env.API_PREFIX}/auth`, authRoutes);
+// app.use(`${API_PREFIX}/user`, userRoutes);
+
+app.use(errorHandler);
 app.get('/', (req, res) => {
-    res.send('Inventory Management API is running');
+    res.send('Inventory Management System backend server is running');
 });
 
 const startServer = async (): Promise<void> => {

@@ -28,17 +28,17 @@ const setAuthCookie = (res: Response, token: string) => {
 
 const register = async (req: Request, res: Response) => {
     const user = await authService.register(req.body);
+    console.log(user);
 
     const token = jwt.sign(
         {
             userId: user._id,
-            tenantId: user.tenantId,
+            businessId: user.businessId,
             role: user.role,
         },
         JWT_SECRET,
         signOptions
     );
-
     setAuthCookie(res, token);
     res.status(201).json({ user });
 };
@@ -49,7 +49,7 @@ const login = async (req: Request, res: Response) => {
     const token = jwt.sign(
         {
             userId: user._id,
-            tenantId: user.tenantId,
+            businessId: user.businessId,
             role: user.role,
         },
         JWT_SECRET,

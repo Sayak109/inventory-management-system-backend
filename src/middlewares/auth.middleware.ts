@@ -7,6 +7,7 @@ export const authenticate = (
     next: NextFunction
 ) => {
     const token = req.cookies?.token;
+    console.log(token);
 
     if (!token) {
         return res.status(401).json({ message: 'Unauthorized' });
@@ -18,7 +19,7 @@ export const authenticate = (
             process.env.JWT_SECRET as string
         ) as {
             userId: string;
-            tenantId: string;
+            businessId: string;
             role: string;
         };
 
