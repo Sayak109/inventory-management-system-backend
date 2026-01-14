@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
-import UserModel from '../users/user.model';
-import BusinessModel from '../users/business.model.ts';
+import UserModel from '../users/model/user.model';
+import BusinessModel from '../users/model/business.model';
 import { AppError } from '../../utils/appError';
 
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?#&])[A-Za-z\d@$!%*?#&]{8,}$/;

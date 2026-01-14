@@ -57,8 +57,8 @@ const userSchema = new mongoose.Schema(
     }
 );
 
-userSchema.index({ tenantId: 1, email: 1 }, { unique: true });
-userSchema.index({ tenantId: 1, isActive: 1 });
+userSchema.index({ businessId: 1, email: 1 }, { unique: true });
+userSchema.index({ businessId: 1, isActive: 1 });
 
 const User = mongoose.model('User', userSchema);
 

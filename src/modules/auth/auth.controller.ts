@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import jwt, { Secret, SignOptions } from 'jsonwebtoken';
 import authService from './auth.service';
+import { sendResponse } from '../../utils/response.utils';
 
 const COOKIE_SECURE = process.env.COOKIE_SECURE === 'true';
 const COOKIE_SAME_SITE = (process.env.COOKIE_SAME_SITE ||
@@ -28,7 +29,6 @@ const setAuthCookie = (res: Response, token: string) => {
 
 const register = async (req: Request, res: Response) => {
     const user = await authService.register(req.body);
-    console.log(user);
 
     const token = jwt.sign(
         {
@@ -40,7 +40,12 @@ const register = async (req: Request, res: Response) => {
         signOptions
     );
     setAuthCookie(res, token);
-    res.status(201).json({ user });
+    sendResponse(res, {
+        success: true,
+        message: 'Registration successful',
+        statusCode: 201,
+        data: user,
+    });
 };
 
 const login = async (req: Request, res: Response) => {
@@ -57,7 +62,12 @@ const login = async (req: Request, res: Response) => {
     );
 
     setAuthCookie(res, token);
-    res.status(200).json({ user });
+    sendResponse(res, {
+        success: true,
+        message: 'Login successful',
+        statusCode: 200,
+        data: user,
+    });
 };
 
 const logout = async (_req: Request, res: Response) => {
@@ -68,12 +78,23 @@ const logout = async (_req: Request, res: Response) => {
         domain: COOKIE_DOMAIN,
     });
 
-    res.status(200).json({ message: 'Logged out' });
+    sendResponse(res, {
+        success: true,
+        message: 'Logged out',
+        statusCode: 200,
+        data: null,
+    });
 };
 
 const getMe = async (req: Request, res: Response) => {
-    const user = await authService.getUserById((req as any).user?.userId);
-    res.status(200).json({ user });
+    const user = await authService.getUserById(req.user?.userId);
+
+    sendResponse(res, {
+        success: true,
+        message: 'Me',
+        statusCode: 200,
+        data: user,
+    });
 };
 
 export default {

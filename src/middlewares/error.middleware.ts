@@ -1,18 +1,25 @@
 import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../utils/appError';
+import { sendResponse } from '../utils/response.utils';
 
 export const errorHandler = (
-    err: Error,
+    err: any,
     req: Request,
     res: Response,
     next: NextFunction
 ) => {
-    const statusCode = err instanceof AppError ? err.statusCode : 500;
-    const message = err instanceof AppError ? err.message : 'Internal server error';
-
-    res.status(statusCode).json({
-        message,
+    if (err instanceof AppError) {
+        return sendResponse(res, {
+            success: false,
+            message: err.message,
+            statusCode: err.statusCode,
+            data: null,
+        });
+    }
+    return sendResponse(res, {
         success: false,
-        statusCode,
+        message: 'Internal server error',
+        statusCode: 500,
+        data: null,
     });
 };
