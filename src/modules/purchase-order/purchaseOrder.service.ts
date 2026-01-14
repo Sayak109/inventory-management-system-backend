@@ -1,6 +1,8 @@
-import PurchaseOrder from './purchaseOrder.model';
+import PurchaseOrder from './model/purchaseOrder.model';
 import { AppError } from '../../utils/appError';
 import stockService from "../inventory/stock.service"
+
+
 const createPurchaseOrder = async (
     currentUser: any,
     data: any
@@ -106,8 +108,62 @@ const receivePurchaseOrder = async (
 };
 
 
+const getPurchaseOrders = async (
+    currentUser: any,
+    query: any
+) => {
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const filter: any = {
+        businessId: currentUser.businessId,
+    };
+
+    if (query.status) {
+        filter.status = query.status;
+    }
+
+    const [data, total] = await Promise.all([
+        PurchaseOrder.find(filter)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit),
+        PurchaseOrder.countDocuments(filter),
+    ]);
+
+    return {
+        data,
+        pagination: {
+            total,
+            page,
+            limit,
+        },
+    };
+};
+
+const getPurchaseOrderById = async (
+    currentUser: any,
+    poId: string
+) => {
+    const po = await PurchaseOrder.findOne({
+        _id: poId,
+        businessId: currentUser.businessId,
+    });
+
+    if (!po) {
+        throw new AppError('Purchase order not found', 404);
+    }
+
+    return po;
+};
+
+
+
 export default {
     createPurchaseOrder,
     updatePurchaseOrderStatus,
-    receivePurchaseOrder
+    receivePurchaseOrder,
+    getPurchaseOrders,
+    getPurchaseOrderById
 }

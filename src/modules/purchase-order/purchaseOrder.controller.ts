@@ -48,8 +48,35 @@ const receivePO = async (req: Request, res: Response) => {
     });
 };
 
+const getPOList = async (req: Request, res: Response) => {
+    const result = await poService.getPurchaseOrders(req.user, req.query);
+
+    sendResponse(res, {
+        success: true,
+        message: 'Purchase orders fetched',
+        statusCode: 200,
+        data: result,
+    });
+};
+
+const getPOById = async (req: Request, res: Response) => {
+    const po = await poService.getPurchaseOrderById(
+        req.user,
+        req.params.id as string
+    );
+
+    sendResponse(res, {
+        success: true,
+        message: 'Purchase order details fetched',
+        statusCode: 200,
+        data: po,
+    });
+};
+
 export default {
     createPO,
     updatePOStatus,
-    receivePO
+    receivePO,
+    getPOList,
+    getPOById
 }
