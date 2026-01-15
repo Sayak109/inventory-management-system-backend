@@ -30,16 +30,20 @@ app.use(`${process.env.API_PREFIX}/purchase-order`, purchaseOrderRoutes);
 app.use(`${process.env.API_PREFIX}/sales-order`, salesOrderRoutes);
 
 
-app.use(errorHandler);
 app.get('/', (req, res) => {
     res.send('Inventory Management System backend server is running');
 });
+app.use(errorHandler);
 
-const startServer = async (): Promise<void> => {
-    await connectDatabase();
-    app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
-    });
-};
+// const startServer = async (): Promise<void> => {
+//     await connectDatabase();
+//     app.listen(PORT, () => {
+//         console.log(`Server running on port ${PORT}`);
+//     });
+// };
 
-startServer();
+// startServer();
+
+connectDatabase();
+
+export default app;
