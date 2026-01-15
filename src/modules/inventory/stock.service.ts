@@ -12,7 +12,7 @@ const getAvailableStock = async (
             {
                 $match: {
                     businessId: new mongoose.Types.ObjectId(businessId),
-                    variantId: new mongoose.Types.ObjectId(variantId),
+                    productVariantId: new mongoose.Types.ObjectId(variantId),
                 },
             },
             {

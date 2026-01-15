@@ -1,6 +1,7 @@
 import { AppError } from '../../utils/appError';
 import ProductModel from './model/product.model';
-import ProductVariantionModel from './model/variation.model'
+import ProductVariantionModel from './model/variation.model';
+import stockService from './stock.service';
 
 const createProduct = async (currentUser: any, data: any) => {
     if (currentUser.role === 'STAFF') {
@@ -40,6 +41,7 @@ const createProduct = async (currentUser: any, data: any) => {
                     attributes: variant.attributes || {},
                     mrp: variant.mrp,
                     sellPrice: variant.sellPrice,
+                    costPrice: variant.costPrice,
                     lowStockThreshold:
                         variant.lowStockThreshold || 5,
                     status: 'ACTIVE',
@@ -110,10 +112,31 @@ const getProducts = async (currentUser: any, query: any) => {
         variantMap[key].push(variant);
     });
 
-    const items = products.map((product) => ({
-        ...product.toObject(),
-        variants: variantMap[product._id.toString()] || [],
-    }));
+    // Get stock for all variants
+    const variantIds = variants.map((v) => v._id.toString());
+    const stockPromises = variantIds.map(async (variantId) => {
+        const stock = await stockService.getAvailableStock(
+            currentUser.businessId.toString(),
+            variantId
+        );
+        return { variantId, stock };
+    });
+    const stockResults = await Promise.all(stockPromises);
+    const stockMap: Record<string, number> = {};
+    stockResults.forEach(({ variantId, stock }) => {
+        stockMap[variantId] = stock;
+    });
+
+    const items = products.map((product) => {
+        const productVariants = (variantMap[product._id.toString()] || []).map((variant: any) => ({
+            ...variant.toObject(),
+            stock: stockMap[variant._id.toString()] || 0,
+        }));
+        return {
+            ...product.toObject(),
+            variants: productVariants,
+        };
+    });
 
     return {
         Products: items,
@@ -141,9 +164,23 @@ const getProductById = async (currentUser: any, productId: string) => {
         productId,
     });
 
+    // Get stock for each variant
+    const variantsWithStock = await Promise.all(
+        variants.map(async (variant: any) => {
+            const stock = await stockService.getAvailableStock(
+                currentUser.businessId.toString(),
+                variant._id.toString()
+            );
+            return {
+                ...variant.toObject(),
+                stock,
+            };
+        })
+    );
+
     return {
         ...product.toObject(),
-        variants,
+        variants: variantsWithStock,
     };
 };
 
@@ -196,6 +233,7 @@ const updateProduct = async (
                             attributes: variant.attributes || {},
                             mrp: variant.mrp,
                             sellPrice: variant.sellPrice,
+                            costPrice: variant.costPrice,
                             lowStockThreshold:
                                 variant.lowStockThreshold,
                         },
@@ -209,6 +247,7 @@ const updateProduct = async (
                     attributes: variant.attributes || {},
                     mrp: variant.mrp,
                     sellPrice: variant.sellPrice,
+                    costPrice: variant.costPrice,
                     lowStockThreshold:
                         variant.lowStockThreshold || 5,
                     status: 'ACTIVE',
