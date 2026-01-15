@@ -42,18 +42,15 @@ const updatePurchaseOrderStatus = async (
         throw new AppError('Purchase order not found', 404);
     }
 
-    // If status is RECEIVED, automatically receive all items
     if (status === 'RECEIVED') {
         if (po.status === 'RECEIVED') {
             throw new AppError('Purchase order already received', 400);
         }
 
-        // Receive all items that haven't been fully received
         for (const item of po.items) {
             const remainingQty = item.orderedQty - item.receivedQty;
-            
+
             if (remainingQty > 0) {
-                // Add stock for the remaining quantity
                 await stockService.addStock({
                     businessId: currentUser.businessId.toString(),
                     variantId: item.variantId.toString(),
@@ -61,8 +58,6 @@ const updatePurchaseOrderStatus = async (
                     referenceType: 'PURCHASE_ORDER',
                     referenceId: po._id.toString(),
                 });
-
-                // Update received quantity
                 item.receivedQty = item.orderedQty;
             }
         }
@@ -72,8 +67,7 @@ const updatePurchaseOrderStatus = async (
         return po;
     }
 
-    // For SENT and CONFIRMED, just update status
-    po.status = status;
+    po.status = status as any;
     await po.save();
     return po;
 };
@@ -162,12 +156,8 @@ const getPurchaseOrders = async (
     ]);
 
     return {
-        data,
-        pagination: {
-            total,
-            page,
-            limit,
-        },
+        PurchaseOrder: data,
+        Total: total,
     };
 };
 

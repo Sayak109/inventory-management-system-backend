@@ -117,12 +117,8 @@ const getSalesOrders = async (
     ]);
 
     return {
-        data,
-        pagination: {
-            total,
-            page,
-            limit,
-        },
+        SalesOrder: data,
+        Total: total,
     };
 };
 
