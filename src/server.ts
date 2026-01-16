@@ -35,15 +35,15 @@ app.get('/', (req, res) => {
 });
 app.use(errorHandler);
 
-const startServer = async (): Promise<void> => {
-    await connectDatabase();
-    app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
-    });
-};
+// const startServer = async (): Promise<void> => {
+//     await connectDatabase();
+//     app.listen(PORT, () => {
+//         console.log(`Server running on port ${PORT}`);
+//     });
+// };
 
-startServer();
+// startServer();
 
-// connectDatabase();
+connectDatabase();
 
-// export default app;
+export default app;
